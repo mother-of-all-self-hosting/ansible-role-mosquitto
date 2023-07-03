@@ -2,7 +2,7 @@ galaxy_info:
   role_name: mosquitto
   author: Julian-Samuel Gebühr
   company: Hyteck
-  description: Ansible role to install mosquitto, a high performance, embeddable MQTT broker
+  description: Ansible role to install mosquitto, an open source MQTT broker
   platforms:
     - name: Debian
       versions:
