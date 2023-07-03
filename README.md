@@ -19,7 +19,7 @@ mosquitto_enabled: true
 
 ## Usage
 
-After installation, you can use `just run-tags mosquitto-add-user --extra-vars=username=<username> --extra-vars=password=<password>"` to create a user.
+After installation, you can use `just run-tags mosquitto-add-user --extra-vars=username=<username> --extra-vars=password=<password>"` to create a user. For the setting to take effect, you must restart the container.
 
 
 ## Support
