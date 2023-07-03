@@ -6,4 +6,4 @@
       You need to define a required configuration setting (`{{ item }}`) for using this role.
   when: "vars[item] == ''"
   with_items:
-    - mosquitto_container_http_host_bind_port
+    - mosquitto_container_mqtt_host_bind_port

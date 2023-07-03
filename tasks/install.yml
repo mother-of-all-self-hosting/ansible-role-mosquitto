@@ -20,7 +20,7 @@
 - name: Ensure mosquitto configuration is deployed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/mosquitto.conf.j2"
-    dest: "{{ gotosocial_config_path }}/mosquitto.conf"
+    dest: "{{ mosquitto_config_path }}/mosquitto.conf"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
     mode: 0640
@@ -29,6 +29,8 @@
   ansible.builtin.file:
     path: "{{ mosquitto_config_path }}/password_file"
     state: touch
+    owner: "{{ mosquitto_uid }}"
+    group: "{{ mosquitto_gid }}"
     mode: 0640
 
 - name: Ensure mosquitto container image is pulled
