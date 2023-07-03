@@ -14,7 +14,7 @@ mosquitto_systemd_required_services_list: ['docker.service']
 mosquitto_version: 2.0.15
 
 
-mosquitto_container_image: "{{ mosquitto_container_image_registry_prefix }}library/mosquitto:{{ mosquitto_container_image_tag }}"
+mosquitto_container_image: "{{ mosquitto_container_image_registry_prefix }}library/eclipse-mosquitto:{{ mosquitto_container_image_tag }}"
 mosquitto_container_image_registry_prefix: docker.io/
 mosquitto_container_image_tag: "{{ mosquitto_version }}"
 mosquitto_container_image_force_pull: "{{ mosquitto_container_image.endswith(':latest') }}"
