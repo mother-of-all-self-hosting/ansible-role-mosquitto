@@ -24,4 +24,4 @@
 
 - name: Create user account
   ansible.builtin.command:
-    cmd: "{{ devture_systemd_docker_base_host_command_docker }} exec {{ mosquitto_identifier }} mosquitto_passwd -b mosquitto_container_password_file_location {{ username | quote }}  --password {{ password | quote }}"
+    cmd: "{{ devture_systemd_docker_base_host_command_docker }} exec {{ mosquitto_identifier }} mosquitto_passwd -b {{ mosquitto_container_password_file_location }} {{ username | quote }} {{ password | quote }}"
