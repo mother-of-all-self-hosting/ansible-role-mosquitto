@@ -36,7 +36,7 @@ mosquitto_allow_anonymus_access: False
 
 # Make use of a password file
 mosquitto_use_password_file: True
-mosquitto_container_password_file_location: "/etc/mosquitto/password_file"
+mosquitto_container_password_file_location: "/mosquitto/config/password_file"
 
 
 
