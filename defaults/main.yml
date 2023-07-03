@@ -1,0 +1,46 @@
+---
+
+mosquitto_enabled: true
+mosquitto_identifier: mosquitto
+
+mosquitto_uid: ''
+mosquitto_gid: ''
+
+mosquitto_base_path: "/{{ mosquitto_identifier }}"
+mosquitto_config_path: "{{ mosquitto_base_path }}/config"
+
+mosquitto_systemd_required_services_list: ['docker.service']
+
+mosquitto_version: 2.0.15
+
+
+mosquitto_container_image: "{{ mosquitto_container_image_registry_prefix }}library/mosquitto:{{ mosquitto_container_image_tag }}"
+mosquitto_container_image_registry_prefix: docker.io/
+mosquitto_container_image_tag: "{{ mosquitto_version }}"
+mosquitto_container_image_force_pull: "{{ mosquitto_container_image.endswith(':latest') }}"
+
+mosquitto_container_network: '{{ mosquitto_identifier }}'
+
+# The port number in the container
+mosquitto_container_http_port: 1883
+
+# Controls whether the mosquitto container exposes its MQTT port.
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:1883"), or empty string to not expose.
+mosquitto_container_mqtt_host_bind_port: "1883"
+
+# Allow everyone to use your MQTT brocker
+# Change only when you understand the implications!
+# See https://mosquitto.org/documentation/authentication-methods/
+mosquitto_allow_anonymus_access: False
+
+# Make use of a password file
+mosquitto_use_password_file: True
+mosquitto_container_password_file_location: "/etc/mosquitto/password_file"
+
+
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to a reverse proxy, which runs in a different container network.
+mosquitto_container_additional_networks: []

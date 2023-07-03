@@ -1,0 +1,43 @@
+---
+
+- name: Ensure mosquitto network is created in Docker
+  community.docker.docker_network:
+    name: "{{ mosquitto_container_network }}"
+    driver: bridge
+
+
+- name: Ensure mosquitto path exists
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: 0700
+    owner: "{{ mosquitto_uid }}"
+    group: "{{ mosquitto_gid }}"
+  with_items:
+    - {path: "{{ mosquitto_base_path }}", when: true}
+    - {path: "{{ mosquitto_config_path }}", when: true}
+
+- name: Ensure mosquitto configuration is deployed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/mosquitto.conf.j2"
+    dest: "{{ gotosocial_config_path }}/mosquitto.conf"
+    owner: "{{ mosquitto_uid }}"
+    group: "{{ mosquitto_gid }}"
+    mode: 0640
+
+- name: Ensure password file exists
+  ansible.builtin.file:
+    path: "{{ mosquitto_config_path }}/password_file"
+    state: touch
+    mode: 0640
+
+- name: Ensure mosquitto container image is pulled
+  community.docker.docker_image:
+    name: "{{ mosquitto_container_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure mosquitto.service installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/systemd/mosquitto.service.j2"
+    dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ mosquitto_identifier }}.service"
+    mode: 0644

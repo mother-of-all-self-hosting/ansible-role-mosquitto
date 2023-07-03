@@ -1,0 +1,33 @@
+---
+
+- block:
+    - when: mosquitto_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+  tags:
+    - setup-all
+    - setup-mosquitto
+    - install-all
+    - install-mosquitto
+
+- block:
+    - when: mosquitto_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
+  tags:
+    - setup-all
+    - setup-mosquitto
+    - install-all
+    - install-mosquitto
+
+- block:
+    - when: not mosquitto_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
+  tags:
+    - setup-all
+    - setup-mosquitto
+
+- block:
+    - when: mosquitto_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/add-user.yml"
+  tags:
+    - mosquitto-add-user
+
