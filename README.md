@@ -1,10 +1,10 @@
 # Mosquitto Ansible Role
 
 
-An open source [MQTT](https://en.wikipedia.org/wiki/MQTT) broker. This role helps you to set up mosquitto:
+[Mosquitto](https://mosquitto.org/) is an open source [MQTT](https://en.wikipedia.org/wiki/MQTT) broker. This role helps you to set up mosquitto:
 
 - with everything run in [Docker](https://www.docker.com/) containers
-- powered by [the official mosquitto container image](https://hub.docker.com/r/_/mosquitto/)
+- powered by [the official mosquitto container image](https://hub.docker.com/r/_/eclipse-mosquitto/)
 
 
 ## Installing
