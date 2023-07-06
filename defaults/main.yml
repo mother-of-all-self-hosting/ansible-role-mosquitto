@@ -32,7 +32,7 @@ mosquitto_container_mqtt_host_bind_port: "1883"
 # Allow everyone to use your MQTT brocker
 # Change only when you understand the implications!
 # See https://mosquitto.org/documentation/authentication-methods/
-mosquitto_allow_anonymus_access: False
+mosquitto_allow_anonymous_access: False
 
 # Make use of a password file
 mosquitto_use_password_file: True
