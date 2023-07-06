@@ -1,11 +1,5 @@
 ---
 
-- name: Ensure mosquitto network is created in Docker
-  community.docker.docker_network:
-    name: "{{ mosquitto_container_network }}"
-    driver: bridge
-
-
 - name: Ensure mosquitto path exists
   ansible.builtin.file:
     path: "{{ item.path }}"
@@ -32,6 +26,11 @@
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
     mode: 0640
+
+- name: Ensure mosquitto network is created in Docker
+  community.docker.docker_network:
+    name: "{{ mosquitto_container_network }}"
+    driver: bridge
 
 - name: Ensure mosquitto container image is pulled
   community.docker.docker_image:
