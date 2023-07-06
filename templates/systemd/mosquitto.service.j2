@@ -18,7 +18,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
                 --user={{ mosquitto_uid }}:{{ mosquitto_gid }} \
                 --cap-drop=ALL \
                 {% if mosquitto_container_mqtt_host_bind_port %}
-                -p {{ mosquitto_container_mqtt_host_bind_port }}:1883 \
+                -p {{ mosquitto_container_mqtt_host_bind_port }}:{{ mosquitto_container_mqtt_port }} \
                 {% endif %}
                 --network={{ mosquitto_container_network }} \
                 --read-only \

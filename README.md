@@ -15,6 +15,10 @@ To configure and install mosquitto on your own server(s), you should use a playb
 
 ```yaml
 mosquitto_enabled: true
+
+
+# If you need to change the MQTT port you can uncomment and adjust
+# mosquitto_container_mqtt_host_bind_port: "1884"
 ```
 
 ## Usage
