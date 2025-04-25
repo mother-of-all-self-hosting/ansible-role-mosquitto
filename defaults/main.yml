@@ -40,6 +40,13 @@ mosquitto_container_mqtt_host_bind_port: "{{ mosquitto_container_mqtt_port }}"
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 mosquitto_container_network: '{{ mosquitto_identifier }}'
 
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to another reverse proxy, which runs in a different container network.
+mosquitto_container_additional_networks: "{{ mosquitto_container_additional_networks_auto + mosquitto_container_additional_networks_custom }}"
+mosquitto_container_additional_networks_auto: []
+mosquitto_container_additional_networks_custom: []
+
 # Allow everyone to use your MQTT brocker
 # Change only when you understand the implications!
 # See https://mosquitto.org/documentation/authentication-methods/
@@ -50,8 +57,3 @@ mosquitto_use_password_file: True
 mosquitto_container_password_file_location: "/mosquitto/config/password_file"
 
 mosquitto_systemd_required_services_list: ['docker.service']
-
-# A list of additional container networks that the container would be connected to.
-# The role does not create these networks, so make sure they already exist.
-# Use this to expose this container to a reverse proxy, which runs in a different container network.
-mosquitto_container_additional_networks: []
