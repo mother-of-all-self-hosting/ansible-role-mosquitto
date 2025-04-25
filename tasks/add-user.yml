@@ -14,14 +14,14 @@
     msg: "The `password` variable needs to be provided to this playbook, via --extra-vars"
   when: "password is not defined or password == '<password>'"
 
-- name: Ensure mosquitto is started
+- name: Ensure Mosquitto is started
   ansible.builtin.service:
     name: "{{ mosquitto_identifier }}"
     state: started
     daemon_reload: true
   register: start_result
 
-- name: Wait a while, so that the mosquitto instance can manage to start
+- name: Wait a while, so that the Mosquitto instance can manage to start
   ansible.builtin.pause:
     seconds: 7
   when: "start_result.changed"

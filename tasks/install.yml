@@ -4,7 +4,7 @@
 
 ---
 
-- name: Ensure mosquitto path exists
+- name: Ensure Mosquitto path exists
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
@@ -15,7 +15,7 @@
     - {path: "{{ mosquitto_base_path }}", when: true}
     - {path: "{{ mosquitto_config_path }}", when: true}
 
-- name: Ensure mosquitto configuration is deployed
+- name: Ensure Mosquitto configuration is deployed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/mosquitto.conf.j2"
     dest: "{{ mosquitto_config_path }}/mosquitto.conf"
@@ -31,12 +31,12 @@
     group: "{{ mosquitto_gid }}"
     mode: 0640
 
-- name: Ensure mosquitto network is created in Docker
+- name: Ensure Mosquitto network is created in Docker
   community.docker.docker_network:
     name: "{{ mosquitto_container_network }}"
     driver: bridge
 
-- name: Ensure mosquitto container image is pulled
+- name: Ensure Mosquitto container image is pulled
   community.docker.docker_image:
     name: "{{ mosquitto_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"

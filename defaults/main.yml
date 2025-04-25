@@ -32,7 +32,7 @@ mosquitto_container_image_force_pull: "{{ mosquitto_container_image.endswith(':l
 # The port number in the container
 mosquitto_container_mqtt_port: 1883
 
-# Controls whether the mosquitto container exposes its MQTT port.
+# Controls whether the Mosquitto container exposes its MQTT port.
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:1883"), or empty string to not expose.
 mosquitto_container_mqtt_host_bind_port: "{{ mosquitto_container_mqtt_port }}"
