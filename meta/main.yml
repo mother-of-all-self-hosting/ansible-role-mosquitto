@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 galaxy_info:
-  role_name: mosquitto
+  role_name: Mosquitto
   author: Julian-Samuel Gebühr
   company: Hyteck
-  description: Ansible role to install mosquitto, an open source MQTT broker
+  description: Ansible role to install Mosquitto, an open source MQTT broker
   platforms:
     - name: Debian
       versions:

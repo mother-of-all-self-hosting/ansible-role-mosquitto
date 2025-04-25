@@ -4,24 +4,24 @@
 
 ---
 
-- name: Check existence of mosquitto systemd service
+- name: Check existence of Mosquitto systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ mosquitto_identifier }}.service"
   register: mosquitto_service_stat
 
 - when: mosquitto_service_stat.stat.exists | bool
   block:
-    - name: Ensure mosquitto service is stopped
+    - name: Ensure Mosquitto service is stopped
       ansible.builtin.service:
         name: "{{ mosquitto_identifier }}"
         state: stopped
         daemon_reload: true
-    - name: Ensure mosquitto service doesn't exist
+    - name: Ensure Mosquitto service doesn't exist
       ansible.builtin.file:
         dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ mosquitto_identifier }}.service"
         state: absent
 
-    - name: Ensure mosquitto base path is files deleted (make sure to delete node data)
+    - name: Ensure Mosquitto base path is files deleted (make sure to delete node data)
       ansible.builtin.file:
         path: "{{ mosquitto_base_path }}"
         state: absent
