@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -31,15 +33,19 @@
     group: "{{ mosquitto_gid }}"
     mode: 0640
 
-- name: Ensure Mosquitto network is created in Docker
-  community.docker.docker_network:
-    name: "{{ mosquitto_container_network }}"
-    driver: bridge
-
 - name: Ensure Mosquitto container image is pulled
   community.docker.docker_image:
     name: "{{ mosquitto_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+    force_source: "{{ mosquitto_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else mosquitto_container_image_force_pull }}"
+
+- name: Ensure Mosquitto network is created in Docker
+  community.docker.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
+    name: "{{ mosquitto_container_network }}"
+    driver: bridge
+    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
 - name: Ensure mosquitto.service installed
   ansible.builtin.template:
