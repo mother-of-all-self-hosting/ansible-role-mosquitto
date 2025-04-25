@@ -1,37 +1,19 @@
 <!--
-SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+SPDX-FileCopyrightText: 2025 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# Mosquitto Ansible Role
+# Mosquitto Ansible role
 
+This is an [Ansible](https://www.ansible.com/) role which installs [Mosquitto](https://mosquitto.org/) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-[Mosquitto](https://mosquitto.org/) is an open source [MQTT](https://en.wikipedia.org/wiki/MQTT) broker. This role helps you to set up mosquitto:
+This role *implicitly* depends on:
 
-- with everything run in [Docker](https://www.docker.com/) containers
-- powered by [the official mosquitto container image](https://hub.docker.com/r/_/eclipse-mosquitto/)
+- [`com.devture.ansible.role.playbook_help`](https://github.com/devture/com.devture.ansible.role.playbook_help)
+- [`com.devture.ansible.role.systemd_docker_base`](https://github.com/devture/com.devture.ansible.role.systemd_docker_base)
 
+Check [defaults/main.yml](defaults/main.yml) for the full list of supported options.
 
-## Installing
-
-To configure and install mosquitto on your own server(s), you should use a playbook like [Mother of all self-hosting](https://github.com/mother-of-all-self-hosting/mash-playbook) or write your own.
-
-## Configuring this role for your playbook
-
-```yaml
-mosquitto_enabled: true
-
-
-# If you need to change the MQTT port you can uncomment and adjust
-# mosquitto_container_mqtt_host_bind_port: "1884"
-```
-
-## Usage
-
-After installation, you can use `just run-tags mosquitto-add-user --extra-vars=username=<username> --extra-vars=password=<password>"` to create a user. For the setting to take effect, you must restart the container.
-
-
-## Support
-
-- Github issues: [mother-of-all-self-hosting/ansible-role-mosquitto/issues](https://github.com/mother-of-all-self-hosting/ansible-role-mosquitto/issues)
+💡 See this [document](docs/configuring-mosquitto.md) for details about setting up the service with this role.
