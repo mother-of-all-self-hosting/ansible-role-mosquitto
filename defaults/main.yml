@@ -1,29 +1,32 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
+# SPDX-FileCopyrightText: 2025 MASH project contributors
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
+# Project source code URL: https://github.com/eclipse-mosquitto/mosquitto
 
 mosquitto_enabled: true
+
 mosquitto_identifier: mosquitto
+mosquitto_base_path: "/{{ mosquitto_identifier }}"
+mosquitto_config_path: "{{ mosquitto_base_path }}/config"
+
+mosquitto_version: 2.0.15
 
 mosquitto_uid: ''
 mosquitto_gid: ''
 
-mosquitto_base_path: "/{{ mosquitto_identifier }}"
-mosquitto_config_path: "{{ mosquitto_base_path }}/config"
-
-mosquitto_systemd_required_services_list: ['docker.service']
-
-mosquitto_version: 2.0.15
-
-
 mosquitto_container_image: "{{ mosquitto_container_image_registry_prefix }}library/eclipse-mosquitto:{{ mosquitto_container_image_tag }}"
-mosquitto_container_image_registry_prefix: docker.io/
 mosquitto_container_image_tag: "{{ mosquitto_version }}"
+mosquitto_container_image_registry_prefix: "{{ mosquitto_container_image_registry_prefix_upstream }}"
+mosquitto_container_image_registry_prefix_upstream: "{{ mosquitto_container_image_registry_prefix_upstream_default }}"
+mosquitto_container_image_registry_prefix_upstream_default: docker.io/
 mosquitto_container_image_force_pull: "{{ mosquitto_container_image.endswith(':latest') }}"
-
-mosquitto_container_network: '{{ mosquitto_identifier }}'
 
 # The port number in the container
 mosquitto_container_mqtt_port: 1883
@@ -32,6 +35,9 @@ mosquitto_container_mqtt_port: 1883
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:1883"), or empty string to not expose.
 mosquitto_container_mqtt_host_bind_port: "{{ mosquitto_container_mqtt_port }}"
+
+# The base container network. It will be auto-created by this role if it doesn't exist already.
+mosquitto_container_network: '{{ mosquitto_identifier }}'
 
 # Allow everyone to use your MQTT brocker
 # Change only when you understand the implications!
@@ -42,7 +48,7 @@ mosquitto_allow_anonymous_access: False
 mosquitto_use_password_file: True
 mosquitto_container_password_file_location: "/mosquitto/config/password_file"
 
-
+mosquitto_systemd_required_services_list: ['docker.service']
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
