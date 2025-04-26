@@ -47,6 +47,15 @@ mosquitto_container_additional_networks: "{{ mosquitto_container_additional_netw
 mosquitto_container_additional_networks_auto: []
 mosquitto_container_additional_networks_custom: []
 
+# List of systemd services that the Mosquitto systemd service depends on
+mosquitto_systemd_required_services_list: "{{ mosquitto_systemd_required_services_list_default + mosquitto_systemd_required_services_list_auto + mosquitto_systemd_required_services_list_custom }}"
+mosquitto_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+mosquitto_systemd_required_services_list_auto: []
+mosquitto_systemd_required_services_list_custom: []
+
+# List of systemd services that the Mosquitto systemd service wants
+mosquitto_systemd_wanted_services_list: []
+
 # Allow everyone to use your MQTT brocker
 # Change only when you understand the implications!
 # See https://mosquitto.org/documentation/authentication-methods/
@@ -55,5 +64,3 @@ mosquitto_allow_anonymous_access: False
 # Make use of a password file
 mosquitto_use_password_file: True
 mosquitto_container_password_file_location: "/mosquitto/config/password_file"
-
-mosquitto_systemd_required_services_list: ['docker.service']
