@@ -36,6 +36,9 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% endif %}
       --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
       --mount type=bind,src={{ mosquitto_config_path }},dst=/mosquitto/config/ \
+      {% for arg in mosquitto_container_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
       {{ mosquitto_container_image }}
 
 {% for network in mosquitto_container_additional_networks %}
