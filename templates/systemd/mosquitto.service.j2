@@ -24,19 +24,19 @@ ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_s
 ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ mosquitto_identifier }} 2>/dev/null || true'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-                --rm \
-                --name={{ mosquitto_identifier }} \
-                --log-driver=none \
-                --user={{ mosquitto_uid }}:{{ mosquitto_gid }} \
-                --cap-drop=ALL \
-                --read-only \
-                --network={{ mosquitto_container_network }} \
-                {% if mosquitto_container_mqtt_host_bind_port %}
-                -p {{ mosquitto_container_mqtt_host_bind_port }}:{{ mosquitto_container_mqtt_port }} \
-                {% endif %}
-                --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
-                --mount type=bind,src={{ mosquitto_config_path }},dst=/mosquitto/config/ \
-                {{ mosquitto_container_image }}
+      --rm \
+      --name={{ mosquitto_identifier }} \
+      --log-driver=none \
+      --user={{ mosquitto_uid }}:{{ mosquitto_gid }} \
+      --cap-drop=ALL \
+      --read-only \
+      --network={{ mosquitto_container_network }} \
+      {% if mosquitto_container_mqtt_host_bind_port %}
+      -p {{ mosquitto_container_mqtt_host_bind_port }}:{{ mosquitto_container_mqtt_port }} \
+      {% endif %}
+      --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+      --mount type=bind,src={{ mosquitto_config_path }},dst=/mosquitto/config/ \
+      {{ mosquitto_container_image }}
 
 {% for network in mosquitto_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ mosquitto_identifier }}
