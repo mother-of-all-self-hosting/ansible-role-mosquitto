@@ -34,4 +34,3 @@
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/add-user.yml"
   tags:
     - mosquitto-add-user
-
