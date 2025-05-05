@@ -6,7 +6,7 @@
 
 ---
 
-- name: Ensure Mosquitto path exists
+- name: Ensure Mosquitto paths exist
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
@@ -40,14 +40,14 @@
     force_source: "{{ mosquitto_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
     force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else mosquitto_container_image_force_pull }}"
 
-- name: Ensure Mosquitto network is created in Docker
+- name: Ensure Mosquitto container network is created
   community.docker.docker_network:
     enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
     name: "{{ mosquitto_container_network }}"
     driver: bridge
     driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
-- name: Ensure mosquitto.service installed
+- name: Ensure Mosquitto systemd service is present
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/mosquitto.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ mosquitto_identifier }}.service"
