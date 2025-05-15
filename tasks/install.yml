@@ -8,14 +8,14 @@
 
 - name: Ensure Mosquitto paths exist
   ansible.builtin.file:
-    path: "{{ item.path }}"
+    path: "{{ item }}"
     state: directory
     mode: 0700
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
   with_items:
-    - {path: "{{ mosquitto_base_path }}", when: true}
-    - {path: "{{ mosquitto_config_path }}", when: true}
+    - "{{ mosquitto_base_path }}"
+    - "{{ mosquitto_config_path }}"
 
 - name: Ensure Mosquitto configuration is deployed
   ansible.builtin.template:
