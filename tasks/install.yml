@@ -17,7 +17,7 @@
     - "{{ mosquitto_base_path }}"
     - "{{ mosquitto_config_path }}"
 
-- name: Ensure Mosquitto configuration is deployed
+- name: Ensure Mosquitto configuration file installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/mosquitto.conf.j2"
     dest: "{{ mosquitto_config_path }}/mosquitto.conf"
