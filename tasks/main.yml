@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
-- block:
-    - when: mosquitto_enabled | bool
+- name: Perform Mosquitto installation tasks
+  block:
+    - name: Validate Mosquitto configuration
+      when: mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
 
-    - when: mosquitto_enabled | bool
+    - name: Install Mosquitto
+      when: mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
@@ -16,15 +18,19 @@
     - install-all
     - install-mosquitto
 
-- block:
-    - when: not mosquitto_enabled | bool
+- name: Perform Mosquitto uninstallation tasks
+  block:
+    - name: Uninstall Mosquitto
+      when: not mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
   tags:
     - setup-all
     - setup-mosquitto
 
-- block:
-    - when: mosquitto_enabled | bool
+- name: Perform a task to add a user account to Mosquitto
+  block:
+    - name: Add a user account
+      when: mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/add-user.yml"
   tags:
     - mosquitto-add-user
