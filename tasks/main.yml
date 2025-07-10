@@ -4,6 +4,7 @@
 
 ---
 - name: Perform Mosquitto installation tasks
+  when: mosquitto_enabled | bool
   tags:
     - setup-all
     - setup-mosquitto
@@ -11,25 +12,23 @@
     - install-mosquitto
   block:
     - name: Validate Mosquitto configuration
-      when: mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
     - name: Install Mosquitto
-      when: mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
 - name: Perform Mosquitto uninstallation tasks
+  when: not mosquitto_enabled | bool
   tags:
     - setup-all
     - setup-mosquitto
   block:
     - name: Uninstall Mosquitto
-      when: not mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
 
 - name: Perform a task to add a user account to Mosquitto
+  when: mosquitto_enabled | bool
   tags:
     - mosquitto-add-user
   block:
     - name: Add a user account
-      when: mosquitto_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/add-user.yml"
