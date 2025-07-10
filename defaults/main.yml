@@ -62,8 +62,8 @@ mosquitto_systemd_wanted_services_list: []
 # Allow everyone to use your MQTT brocker
 # Change only when you understand the implications!
 # See https://mosquitto.org/documentation/authentication-methods/
-mosquitto_allow_anonymous_access: False
+mosquitto_allow_anonymous_access: false
 
 # Make use of a password file
-mosquitto_use_password_file: True
+mosquitto_use_password_file: true
 mosquitto_container_password_file_location: "/mosquitto/config/password_file"

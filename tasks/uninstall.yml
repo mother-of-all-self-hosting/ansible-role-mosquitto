@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Check existence of Mosquitto systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ mosquitto_identifier }}.service"
   register: mosquitto_service_stat
 
-- when: mosquitto_service_stat.stat.exists | bool
+- name: Uninstall Mosquitto systemd service and scripts
+  when: mosquitto_service_stat.stat.exists | bool
   block:
     - name: Ensure Mosquitto systemd service is stopped
       ansible.builtin.service:

@@ -83,4 +83,4 @@ You can find the logs in [systemd-journald](https://www.freedesktop.org/software
 
 ## Alternatives
 
-[rumqttd](https://github.com/bytebeamio/rumqtt) is another high performance, embeddable MQTT broker. The role for it is available [here](https://github.com/mother-of-all-self-hosting/ansible-role-rumqttd).
+[rumqttd](https://github.com/bytebeamio/rumqtt) is another high performance, embeddable MQTT broker. The role for it is available at [this repository](https://github.com/mother-of-all-self-hosting/ansible-role-rumqttd).

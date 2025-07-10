@@ -5,12 +5,11 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Ensure Mosquitto paths exist
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0700
+    mode: "0700"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
   with_items:
@@ -23,7 +22,7 @@
     dest: "{{ mosquitto_config_path }}/mosquitto.conf"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
-    mode: 0640
+    mode: "0640"
 
 - name: Ensure password file exists
   ansible.builtin.file:
@@ -31,7 +30,7 @@
     state: touch
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
-    mode: 0640
+    mode: "0640"
 
 - name: Ensure Mosquitto container image is pulled via community.docker.docker_image
   when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
@@ -79,4 +78,4 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/mosquitto.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ mosquitto_identifier }}.service"
-    mode: 0644
+    mode: "0644"
