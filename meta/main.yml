@@ -1,7 +1,10 @@
+---
+
 galaxy_info:
-  role_name: Mosquitto
   author: Julian-Samuel Gebühr
   company: Hyteck
+  role_name: mosquitto
+  namespace: mash
   description: Ansible role to install Mosquitto, an open source MQTT broker
   platforms:
     - name: Debian
@@ -17,4 +20,4 @@ galaxy_info:
       versions:
         - all
   license: AGPL-3.0-or-later
-  min_ansible_version: '2.1'
+  min_ansible_version: "2.1"
