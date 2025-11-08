@@ -19,8 +19,8 @@ mosquitto_config_path: "{{ mosquitto_base_path }}/config"
 # renovate: datasource=docker depName=library/eclipse-mosquitto versioning=semver
 mosquitto_version: 2.0.22
 
-mosquitto_uid: ''
-mosquitto_gid: ''
+mosquitto_uid: ""
+mosquitto_gid: ""
 
 mosquitto_container_image: "{{ mosquitto_container_image_registry_prefix }}library/eclipse-mosquitto:{{ mosquitto_container_image_tag }}"
 mosquitto_container_image_tag: "{{ mosquitto_version }}"
