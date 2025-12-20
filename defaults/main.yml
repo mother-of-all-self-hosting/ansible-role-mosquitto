@@ -48,7 +48,9 @@ mosquitto_container_additional_networks_auto: []
 mosquitto_container_additional_networks_custom: []
 
 # A list of extra arguments to pass to the container (`docker run` command)
-mosquitto_container_extra_arguments: []
+mosquitto_container_extra_arguments: "{{ mosquitto_container_extra_arguments_auto + mosquitto_container_extra_arguments_custom }}"
+mosquitto_container_extra_arguments_auto: []
+mosquitto_container_extra_arguments_custom: []
 
 # List of systemd services that the Mosquitto systemd service depends on
 mosquitto_systemd_required_services_list: "{{ mosquitto_systemd_required_services_list_default + mosquitto_systemd_required_services_list_auto + mosquitto_systemd_required_services_list_custom }}"
