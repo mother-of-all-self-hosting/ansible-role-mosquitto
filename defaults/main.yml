@@ -47,7 +47,7 @@ mosquitto_container_additional_networks: "{{ mosquitto_container_additional_netw
 mosquitto_container_additional_networks_auto: []
 mosquitto_container_additional_networks_custom: []
 
-# A list of extra arguments to pass to the container (`docker run` command)
+# A list of extra arguments to pass to the container (`docker create` command)
 mosquitto_container_extra_arguments: "{{ mosquitto_container_extra_arguments_auto + mosquitto_container_extra_arguments_custom }}"
 mosquitto_container_extra_arguments_auto: []
 mosquitto_container_extra_arguments_custom: []
