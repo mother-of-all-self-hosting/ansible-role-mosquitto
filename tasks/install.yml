@@ -20,17 +20,17 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/mosquitto.conf.j2"
     dest: "{{ mosquitto_config_path }}/mosquitto.conf"
+    mode: "0640"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
-    mode: "0640"
 
 - name: Ensure password file exists
   ansible.builtin.file:
     path: "{{ mosquitto_config_path }}/password_file"
     state: touch
+    mode: "0640"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
-    mode: "0640"
 
 - name: Ensure Mosquitto container image is pulled via community.docker.docker_image
   when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
