@@ -9,4 +9,7 @@
       You need to define a required configuration setting (`{{ item }}`).
   when: "lookup('vars', item, default='') | string | length == 0"
   with_items:
+    - mosquitto_uid
+    - mosquitto_gid
+    - mosquitto_container_network
     - mosquitto_container_mqtt_host_bind_port
