@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
-# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
-# SPDX-FileCopyrightText: 2025 Suguru Hirahara
+# SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -15,6 +15,16 @@
   with_items:
     - "{{ mosquitto_base_path }}"
     - "{{ mosquitto_config_path }}"
+
+- name: Ensure Mosquitto support files installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ mosquitto_base_path }}/{{ item }}"
+    mode: "0640"
+    owner: "{{ mosquitto_uid }}"
+    group: "{{ mosquitto_gid }}"
+  with_items:
+    - env
 
 - name: Ensure Mosquitto configuration file installed
   ansible.builtin.template:
