@@ -36,7 +36,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% endif %}
       --env-file={{ mosquitto_base_path }}/env \
       --mount type=bind,src={{ mosquitto_config_path }},dst=/mosquitto/config/ \
-      --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+      --tmpfs=/tmp:rw,noexec,nosuid,size={{ mosquitto_container_tmpfs_tmp_size }} \
       {% for arg in mosquitto_container_extra_arguments %}
       {{ arg }} \
       {% endfor %}
