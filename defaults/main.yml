@@ -29,7 +29,7 @@ mosquitto_container_image_registry_prefix_upstream: "{{ mosquitto_container_imag
 mosquitto_container_image_registry_prefix_upstream_default: docker.io/
 mosquitto_container_image_force_pull: "{{ mosquitto_container_image.endswith(':latest') }}"
 
-# Controls whether the container exposes its MQTT port (tcp/1883 in the container).
+# Specify how the container publishes its MQTT port (as defined by `mosquitto_container_network`).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 mosquitto_container_mqtt_host_bind_port: "{{ mosquitto_container_mqtt_port }}"
