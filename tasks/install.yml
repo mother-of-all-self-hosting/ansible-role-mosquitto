@@ -25,6 +25,7 @@
     group: "{{ mosquitto_gid }}"
   with_items:
     - env
+  register: mosquitto_support_files_result
 
 - name: Ensure Mosquitto configuration file installed
   ansible.builtin.template:
@@ -33,6 +34,7 @@
     mode: "0640"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
+  register: mosquitto_config_file_result
 
 - name: Ensure password file exists
   ansible.builtin.file:
@@ -41,6 +43,7 @@
     mode: "0640"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
+  register: mosquitto_password_file_result
 
 - name: Ensure Mosquitto container image is pulled via community.docker.docker_image
   when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
@@ -49,20 +52,20 @@
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
     force_source: "{{ mosquitto_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
     force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else mosquitto_container_image_force_pull }}"
-  register: result
+  register: mosquitto_container_image_pull_result
   retries: "{{ devture_playbook_help_container_retries_count }}"
   delay: "{{ devture_playbook_help_container_retries_delay }}"
-  until: result is not failed
+  until: mosquitto_container_image_pull_result is not failed
 
 - name: Ensure Mosquitto container image is pulled via ansible.builtin.command
   when: devture_systemd_docker_base_container_image_pull_method == 'command'
   ansible.builtin.command:
     cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ mosquitto_container_image }}"
-  register: result
+  register: mosquitto_container_image_pull_result
   retries: "{{ devture_playbook_help_container_retries_count }}"
   delay: "{{ devture_playbook_help_container_retries_delay }}"
-  until: result is not failed
-  changed_when: "'Downloaded newer image' in result.stdout"
+  until: mosquitto_container_image_pull_result is not failed
+  changed_when: "'Downloaded newer image' in mosquitto_container_image_pull_result.stdout"
 
 - name: Ensure Mosquitto container network is created via community.docker.docker_network
   when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
@@ -90,3 +93,15 @@
     src: "{{ role_path }}/templates/systemd/mosquitto.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ mosquitto_identifier }}.service"
     mode: "0644"
+  register: mosquitto_systemd_service_result
+
+- name: Determine whether Mosquitto needs a restart
+  ansible.builtin.set_fact:
+    mosquitto_restart_necessary: >-
+      {{
+        mosquitto_support_files_result.changed | default(false)
+        or mosquitto_config_file_result.changed | default(false)
+        or mosquitto_password_file_result.changed | default(false)
+        or mosquitto_systemd_service_result.changed | default(false)
+        or mosquitto_container_image_pull_result.changed | default(false)
+      }}
