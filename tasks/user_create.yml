@@ -5,13 +5,10 @@
 ---
 - name: Fail if playbook called incorrectly
   ansible.builtin.fail:
-    msg: "The `username` variable needs to be provided to this playbook, via --extra-vars"
-  when: "username is not defined or username == '<username>'"
-
-- name: Fail if playbook called incorrectly
-  ansible.builtin.fail:
-    msg: "The `password` variable needs to be provided to this playbook, via --extra-vars"
-  when: "password is not defined or password == '<password>'"
+    msg: "The `username` and `password` variable need to be provided to this playbook, via --extra-vars"
+  when: >-
+    username is not defined or username == 'USERNAME_HERE' or
+    password is not defined or password == 'PASSWORD_HERE'
 
 - name: Ensure Mosquitto service is started
   ansible.builtin.service:
@@ -25,6 +22,17 @@
     seconds: 7
   when: "start_result.changed"
 
-- name: Create user account
+- name: Create Mosquitto user account
   ansible.builtin.command:
     cmd: "{{ devture_systemd_docker_base_host_command_docker }} exec {{ mosquitto_identifier }} mosquitto_passwd -b {{ mosquitto_container_password_file_location }} {{ username | quote }} {{ password | quote }}"
+
+- name: Inject the message about the necessity of restarting the Mosquitto instance to activate the user
+  ansible.builtin.set_fact:
+    devture_playbook_runtime_messages_list: |
+      {{
+        devture_playbook_runtime_messages_list | default([])
+        +
+        [
+          "Note: make sure to restart the service to activate the created user."
+        ]
+      }}

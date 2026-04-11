@@ -16,6 +16,15 @@
     - name: Install Mosquitto
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
+- name: Perform Mosquitto user creation tasks
+  when: mosquitto_enabled | bool
+  tags:
+    - create-user-mosquitto
+    - mosquitto-add-user
+  block:
+    - name: Add a Mosquitto user account
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/user_create.yml"
+
 - name: Perform Mosquitto uninstallation tasks
   when: not mosquitto_enabled | bool
   tags:
@@ -24,11 +33,3 @@
   block:
     - name: Uninstall Mosquitto
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
-
-- name: Perform a task to add a user account to Mosquitto
-  when: mosquitto_enabled | bool
-  tags:
-    - mosquitto-add-user
-  block:
-    - name: Add a user account
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/add-user.yml"

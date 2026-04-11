@@ -70,7 +70,7 @@ After running the command for installation, you can start to send and subscribe 
 You can run the following command to create a user:
 
 ```sh
-ansible-playbook -i inventory/hosts setup.yml --tags=mosquitto-add-user --extra-vars=username=<username> --extra-vars=password=<password>
+ansible-playbook -i inventory/hosts setup.yml --tags=create-user-mosquitto -e username=USERNAME_HERE -e password=PASSWORD_HERE
 ```
 
 For the setting to take effect, you need to restart the container.
