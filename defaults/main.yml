@@ -47,8 +47,16 @@ mosquitto_container_network_deletion_enabled: true
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 mosquitto_container_tcp_host_bind_port: "{{ mosquitto_container_tcp_port }}"
 
+# Specify how the container publishes its TCP port (as defined by `mosquitto_container_tcp_tls_port`).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
+mosquitto_container_tcp_tls_host_bind_port: "{{ mosquitto_container_tcp_tls_port }}"
+
 # The port number in the container
 mosquitto_container_tcp_port: 1883
+
+# The port number in the container
+mosquitto_container_tcp_tls_port: 8883
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.

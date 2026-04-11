@@ -33,6 +33,9 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% if mosquitto_container_tcp_host_bind_port and not mosquitto_container_labels_traefik_tcp_enabled %}
       -p {{ mosquitto_container_tcp_host_bind_port }}:{{ mosquitto_container_tcp_port }} \
       {% endif %}
+      {% if mosquitto_container_tcp_tls_host_bind_port and not mosquitto_container_labels_traefik_tcp_enabled %}
+      -p {{ mosquitto_container_tcp_tls_host_bind_port }}:{{ mosquitto_container_tcp_tls_port }} \
+      {% endif %}
       --env-file={{ mosquitto_base_path }}/env \
       --label-file={{ mosquitto_base_path }}/labels \
       --mount type=bind,src={{ mosquitto_config_path }},dst=/mosquitto/config/ \

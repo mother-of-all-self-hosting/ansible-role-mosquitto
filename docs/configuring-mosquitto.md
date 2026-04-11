@@ -46,14 +46,6 @@ mosquitto_enabled: true
 ########################################################################
 ```
 
-### Change the MQTT port (optional)
-
-If you need to change the MQTT port, add the following configuration to your `vars.yml` file (adapt to your needs).
-
-```yaml
-mosquitto_container_tcp_host_bind_port: "1884"
-```
-
 ### Exposing the instance (optional)
 
 By default, the Mosquitto instance is not exposed externally. To expose it to the internet, add the following configuration to your `vars.yml` file. Make sure to replace `example.com` with your own value.
@@ -80,7 +72,9 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 ## Usage
 
-After running the command for installation, you can start to send and subscribe to MQTT topics. Use port `1883` and the servers IP or any domain you configured to point at this server.
+After running the command for installation, you can start to send and subscribe to MQTT topics. The server is configured to listen to the standard ports (`1883` for unencrypted MQTT and `8883` for encrypted MQTT, respectively).
+
+### Creating users
 
 You can run the following command to create a user:
 
