@@ -30,8 +30,8 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --cap-drop=ALL \
       --read-only \
       --network={{ mosquitto_container_network }} \
-      {% if mosquitto_container_mqtt_host_bind_port %}
-      -p {{ mosquitto_container_mqtt_host_bind_port }}:{{ mosquitto_container_mqtt_port }} \
+      {% if mosquitto_container_tcp_host_bind_port and not mosquitto_container_labels_traefik_tcp_enabled %}
+      -p {{ mosquitto_container_tcp_host_bind_port }}:{{ mosquitto_container_tcp_port }} \
       {% endif %}
       --env-file={{ mosquitto_base_path }}/env \
       --mount type=bind,src={{ mosquitto_config_path }},dst=/mosquitto/config/ \

@@ -50,7 +50,7 @@ mosquitto_enabled: true
 If you need to change the MQTT port, add the following configuration to your `vars.yml` file (adapt to your needs).
 
 ```yaml
-mosquitto_container_mqtt_host_bind_port: "1884"
+mosquitto_container_tcp_host_bind_port: "1884"
 ```
 
 ## Installing
