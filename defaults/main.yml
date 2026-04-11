@@ -1,8 +1,9 @@
-# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023, 2024 Julian-Samuel Gebühr
 # SPDX-FileCopyrightText: 2023, 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023, 2025 MASH project contributors
 # SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
-# SPDX-FileCopyrightText: 2025 MASH project contributors
+# SPDX-FileCopyrightText: 2024 Tiz
 # SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -21,6 +22,12 @@ mosquitto_version: 2.1.2
 
 mosquitto_uid: ""
 mosquitto_gid: ""
+
+# The scheme used for serving Mosquitto.
+mosquitto_scheme: mqtts
+
+# The hostname at which Mosquitto is served.
+mosquitto_hostname: ""
 
 mosquitto_container_image: "{{ mosquitto_container_image_registry_prefix }}library/eclipse-mosquitto:{{ mosquitto_container_image_tag }}"
 mosquitto_container_image_tag: "{{ mosquitto_version }}-alpine"
@@ -52,6 +59,35 @@ mosquitto_container_additional_networks_custom: []
 
 # Specify the size of the container's tmpfs volume
 mosquitto_container_tmpfs_tmp_size: 128m
+
+# mosquitto_container_labels_traefik_tcp_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `../templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `mosquitto_container_labels_additional_labels_custom`.
+mosquitto_container_labels_traefik_tcp_enabled: false
+mosquitto_container_labels_traefik_tcp_docker_network: "{{ mosquitto_container_network }}"
+mosquitto_container_labels_traefik_tcp_hostname: "{{ mosquitto_hostname }}"
+mosquitto_container_labels_traefik_tcp_rule: "HostSNI(`{{ mosquitto_container_labels_traefik_tcp_hostname }}`)"
+mosquitto_container_labels_traefik_tcp_priority: 0
+mosquitto_container_labels_traefik_tcp_entrypoints: mqtt-secure
+mosquitto_container_labels_traefik_tcp_tls: "{{ mosquitto_container_labels_traefik_tcp_entrypoints != 'mqtt' }}"
+mosquitto_container_labels_traefik_tcp_tls_certResolver: default  # noqa var-naming
+
+# Specify `serversTransport` for TCP router
+# See: https://doc.traefik.io/traefik/reference/routing-configuration/tcp/serverstransport/
+mosquitto_container_labels_traefik_tcp_loadbalancer_serverstransport: ""
+
+# mosquitto_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+# To add your own custom labels, use `mosquitto_container_labels_additional_labels_custom`
+#
+# Example:
+# mosquitto_container_labels_additional_labels_custom:
+#   - my.label=1
+#   - another.label="here"
+mosquitto_container_labels_additional_labels: "{{ mosquitto_container_labels_additional_labels_auto + mosquitto_container_labels_additional_labels_custom }}"
+mosquitto_container_labels_additional_labels_auto: []
+mosquitto_container_labels_additional_labels_custom: []
 
 # A list of extra arguments to pass to the container (`docker create` command)
 mosquitto_container_extra_arguments: "{{ mosquitto_container_extra_arguments_auto + mosquitto_container_extra_arguments_custom }}"

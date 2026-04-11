@@ -25,6 +25,7 @@
     group: "{{ mosquitto_gid }}"
   with_items:
     - env
+    - labels
   register: mosquitto_support_files_result
 
 - name: Ensure Mosquitto configuration file installed

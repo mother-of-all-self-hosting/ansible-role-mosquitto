@@ -1,5 +1,6 @@
 {#
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+SPDX-FileCopyrightText: 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -8,6 +9,10 @@ listener 1883
 
 {% if mosquitto_allow_anonymous_access %}
 allow_anonymous true
+{% endif %}
+
+{% if mosquitto_container_labels_traefik_tcp_loadbalancer_serverstransport != '' %}
+enable_proxy_protocol 1
 {% endif %}
 
 {% if mosquitto_use_password_file %}

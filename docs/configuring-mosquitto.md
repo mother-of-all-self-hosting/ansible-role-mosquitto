@@ -1,10 +1,10 @@
 <!--
-SPDX-FileCopyrightText: 2020 - 2024 MDAD project contributors
-SPDX-FileCopyrightText: 2020 - 2024 Slavi Pantaleev
 SPDX-FileCopyrightText: 2020 Aaron Raimist
 SPDX-FileCopyrightText: 2020 Chris van Dijk
 SPDX-FileCopyrightText: 2020 Dominik Zajac
 SPDX-FileCopyrightText: 2020 Mickaël Cornière
+SPDX-FileCopyrightText: 2020-2024 MDAD project contributors
+SPDX-FileCopyrightText: 2020-2024 Slavi Pantaleev
 SPDX-FileCopyrightText: 2022 François Darveau
 SPDX-FileCopyrightText: 2022 Julian Foad
 SPDX-FileCopyrightText: 2022 Warren Bailey
@@ -12,7 +12,8 @@ SPDX-FileCopyrightText: 2023 Antonis Christofides
 SPDX-FileCopyrightText: 2023 Felix Stupp
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
 SPDX-FileCopyrightText: 2023 Pierre 'McFly' Marty
-SPDX-FileCopyrightText: 2024 - 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2024 Thomas Miceli
+SPDX-FileCopyrightText: 2024-2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
@@ -52,6 +53,20 @@ If you need to change the MQTT port, add the following configuration to your `va
 ```yaml
 mosquitto_container_tcp_host_bind_port: "1884"
 ```
+
+### Exposing the instance (optional)
+
+By default, the Mosquitto instance is not exposed externally. To expose it to the internet, add the following configuration to your `vars.yml` file. Make sure to replace `example.com` with your own value.
+
+```yaml
+mosquitto_hostname: "example.com"
+
+mosquitto_container_labels_traefik_tcp_enabled: true
+```
+
+After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
+
+If Traefik is enabled, TLS connections are established / terminated by the reverse proxy, and its certificate is automatically retrieved from [Let's Encrypt](https://letsencrypt.org/) using the Traefik's certificates resolver.
 
 ## Installing
 

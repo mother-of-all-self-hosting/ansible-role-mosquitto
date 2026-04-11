@@ -34,6 +34,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       -p {{ mosquitto_container_tcp_host_bind_port }}:{{ mosquitto_container_tcp_port }} \
       {% endif %}
       --env-file={{ mosquitto_base_path }}/env \
+      --label-file={{ mosquitto_base_path }}/labels \
       --mount type=bind,src={{ mosquitto_config_path }},dst=/mosquitto/config/ \
       --tmpfs=/tmp:rw,noexec,nosuid,size={{ mosquitto_container_tmpfs_tmp_size }} \
       {% for arg in mosquitto_container_extra_arguments %}
