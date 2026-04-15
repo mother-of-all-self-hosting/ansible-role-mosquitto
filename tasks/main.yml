@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -16,13 +17,22 @@
     - name: Install Mosquitto
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
-- name: Perform Mosquitto user creation tasks
+- name: Perform tasks to add users automatically to Mosquitto
+  when: mosquitto_enabled | bool
+  tags:
+    - ensure-mosquitto-users-created
+    - ensure-users-created
+  block:
+    - name: Add users to Mosquitto automatically
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/create_users_auto.yml"
+
+- name: Perform tasks to add users manually to Mosquitto
   when: mosquitto_enabled | bool
   tags:
     - create-user-mosquitto
   block:
-    - name: Add a Mosquitto user account
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/create_user.yml"
+    - name: Add users to Mosquitto manually
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/create_user_manual.yml"
 
 - name: Perform Mosquitto uninstallation tasks
   when: not mosquitto_enabled | bool

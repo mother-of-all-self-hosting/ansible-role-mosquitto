@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -9,6 +11,13 @@
   when: >-
     username is not defined or username == 'USERNAME_HERE' or
     password is not defined or password == 'PASSWORD_HERE'
+
+- name: Set user details for Mosquitto
+  ansible.builtin.set_fact:
+    user:
+      username: "{{ username }}"
+      password: "{{ password }}"
+  no_log: true # hide raw password
 
 - name: Ensure Mosquitto service is started
   ansible.builtin.service:
@@ -22,9 +31,9 @@
     seconds: 7
   when: "start_result.changed"
 
-- name: Create Mosquitto user account
-  ansible.builtin.command:
-    cmd: "{{ devture_systemd_docker_base_host_command_docker }} exec {{ mosquitto_identifier }} mosquitto_passwd -b {{ mosquitto_container_password_file_location }} {{ username | quote }} {{ password | quote }}"
+- name: "Ensure Mosquitto user is created - {{ user.username }}"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/util/ensure_user_registered.yml"
+  no_log: true
 
 - name: Inject the message about the necessity of restarting the Mosquitto instance to activate the user
   ansible.builtin.set_fact:

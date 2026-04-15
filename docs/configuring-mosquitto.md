@@ -72,17 +72,37 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 ## Usage
 
-After running the command for installation, you can start to send and subscribe to MQTT topics. The server is configured to listen to the standard ports (`1883` for unencrypted MQTT and `8883` for encrypted MQTT, respectively).
+After running the command for installation, Mosquitto becomes available, and you can start to send and subscribe to MQTT topics. The server is configured to listen to the standard ports (`1883` for unencrypted MQTT and `8883` for encrypted MQTT, respectively).
 
 ### Creating users
 
-You can run the following command to create a user:
+You can run the commands below to create users. Note that the service needs to be restarted to get them activated.
+
+#### Creating a user manually
+
+You can create a user by running the command below:
 
 ```sh
 ansible-playbook -i inventory/hosts setup.yml --tags=create-user-mosquitto -e username=USERNAME_HERE -e password=PASSWORD_HERE
 ```
 
-For the setting to take effect, you need to restart the container.
+#### Creating users automatically
+
+It is also possible to create muitiple users specified with `mosquitto_users_custom` on your `vars.yml` file by running the command below:
+
+```sh
+ansible-playbook -i inventory/hosts setup.yml --tags=ensure-mosquitto-users-created
+```
+
+Those users can be specified like below:
+
+```yaml
+mosquitto_users_custom:
+  - username: user
+    password: password
+  - username: user
+    password: password
+```
 
 ## Troubleshooting
 

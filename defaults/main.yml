@@ -154,6 +154,19 @@ mosquitto_allow_anonymous_access: false
 mosquitto_use_password_file: true
 mosquitto_container_password_file_location: "/mosquitto/config/password_file"
 
+# mosquitto_users contains a list of users that should be created automatically
+# To add your own users for specific host, use `mosquitto_users_custom`
+#
+# Example:
+# mosquitto_users_custom:
+#   - username: user
+#     password: password
+#   - username: user
+#     password: password
+mosquitto_users: "{{ mosquitto_users_auto + mosquitto_users_custom }}"
+mosquitto_users_auto: []
+mosquitto_users_custom: []
+
 # Specify the timezone
 mosquitto_environment_variables_tz: UTC
 

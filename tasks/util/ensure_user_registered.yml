@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2024, 2025 Nikita Chernyi
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: "Ensure Mosquitto user registered - {{ user.username }}"
+  ansible.builtin.command:
+    cmd: >-
+      {{ devture_systemd_docker_base_host_command_docker }} exec
+      {{ mosquitto_identifier }}
+      mosquitto_passwd -b {{ mosquitto_container_password_file_location }}
+      {{ user.username | quote }}
+      {{ user.password | quote }}
+  register: mosquitto_create_account_result
+  changed_when: >-
+    'Adding password for user' in mosquitto_create_account_result.stdout or
+    'Updating password for user' in mosquitto_create_account_result.stdout
+  failed_when: mosquitto_create_account_result.rc > 0
+  no_log: true # Hide raw password
