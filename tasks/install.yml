@@ -9,7 +9,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: "0700"
+    mode: "0750"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
   with_items:
