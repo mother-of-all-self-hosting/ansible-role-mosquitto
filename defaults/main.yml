@@ -34,7 +34,6 @@ mosquitto_container_image_tag: "{{ mosquitto_version }}-alpine"
 mosquitto_container_image_registry_prefix: "{{ mosquitto_container_image_registry_prefix_upstream }}"
 mosquitto_container_image_registry_prefix_upstream: "{{ mosquitto_container_image_registry_prefix_upstream_default }}"
 mosquitto_container_image_registry_prefix_upstream_default: docker.io/
-mosquitto_container_image_force_pull: "{{ mosquitto_container_image.endswith(':latest') }}"
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 mosquitto_container_network: "{{ mosquitto_identifier }}"
