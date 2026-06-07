@@ -22,7 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This is an [Ansible](https://www.ansible.com/) role which installs [Mosquitto](https://mosquitto.org/) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-Mosquitto is an open source [MQTT](https://en.wikipedia.org/wiki/MQTT) broker.
+Mosquitto is an open-source [MQTT](https://en.wikipedia.org/wiki/MQTT) broker.
 
 See the project's [documentation](https://github.com/eclipse-mosquitto/mosquitto/blob/master/README.md) to learn what Mosquitto does and why it might be useful to you.
 
