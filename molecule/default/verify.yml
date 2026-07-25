@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 spatterlight
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Verify Mosquitto systemd service
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for Mosquitto service to become active (up to 180s)
+      ansible.builtin.systemd:
+        name: mosquitto.service
+      register: mosquitto_service
+      until: mosquitto_service.status.ActiveState == 'active'
+      retries: 36
+      delay: 5
+
+    - name: Assert Mosquitto service is active
+      ansible.builtin.assert:
+        that: mosquitto_service.status.ActiveState == 'active'
+        fail_msg: "mosquitto.service not active ({{ mosquitto_service.status.ActiveState }})"
+        success_msg: "mosquitto.service is active"
+
+    - name: Retrieve Mosquitto service log for debugging
+      when: mosquitto_debug_service_enabled | bool
+      ansible.builtin.command:
+        cmd: journalctl -xeu mosquitto.service
+      changed_when: false
+
+    - name: Show Mosquitto systemd service status summary
+      ansible.builtin.debug:
+        msg:
+          - "Mosquitto systemd: {{ mosquitto_service.status.ActiveState }}"
