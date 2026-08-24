@@ -1,0 +1,98 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Provision Mosquitto users
+  hosts: all
+  become: true
+  gather_facts: false
+
+  vars:
+    # Role defaults are not in scope in this play, and `mosquitto_config_path`
+    # is built out of other defaults rather than being a literal, so the path
+    # is spelled out here.
+    mosquitto_molecule_config_path: /mosquitto/config
+
+  tasks:
+    # Negative control for everything the verification asserts about the
+    # account. The account does not exist yet, so it must not be able to
+    # connect - which is what makes its working later attributable to the
+    # provisioning below rather than to a broker that lets anyone in.
+    - name: Connect as the account before it has been provisioned
+      ansible.builtin.command:
+        argv:
+          - mosquitto_sub
+          - -h
+          - 127.0.0.1
+          - -p
+          - "{{ mosquitto_molecule_tcp_port }}"
+          - -u
+          - "{{ mosquitto_molecule_username }}"
+          - -P
+          - "{{ mosquitto_molecule_password }}"
+          - -t
+          - "{{ mosquitto_molecule_topic }}"
+          - -C
+          - "1"
+          - -W
+          - "5"
+      register: mosquitto_unprovisioned_probe
+      changed_when: false
+      failed_when: false
+
+    - name: Assert the account cannot connect before it has been provisioned
+      ansible.builtin.assert:
+        that:
+          - mosquitto_unprovisioned_probe.rc != 0
+          - "'not authorised' in mosquitto_unprovisioned_probe.stderr"
+        fail_msg: >-
+          Mosquitto accepted {{ mosquitto_molecule_username }} before the account existed
+          (rc={{ mosquitto_unprovisioned_probe.rc }}, stderr={{ mosquitto_unprovisioned_probe.stderr }})
+        success_msg: "Mosquitto refuses {{ mosquitto_molecule_username }} before the account exists"
+
+    # The role's user provisioning reaches for this role's variables to find
+    # the Docker command. It carries no tasks of its own, so including it here
+    # only brings its defaults into scope, the way converge does.
+    - name: Load the systemd Docker base role's variables
+      ansible.builtin.include_role:
+        name: com.devture.ansible.role.systemd_docker_base
+        public: true
+
+    # The role provisions users under tags Molecule skips (`molecule-notest`),
+    # so they are reached here through the task file itself. Running them as a
+    # side effect rather than during converge also keeps converge idempotent:
+    # `mosquitto_passwd` rewrites the account's salted record every time it is
+    # called, and would report a change on every run.
+    - name: Add users to Mosquitto through the role's own tasks
+      ansible.builtin.include_role:
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        tasks_from: create_users_auto.yml
+
+    - name: Read the Mosquitto password file
+      ansible.builtin.slurp:
+        src: "{{ mosquitto_molecule_config_path }}/password_file"
+      register: mosquitto_password_file
+
+    # `mosquitto_passwd` is the program the role provisions users with, and it
+    # writes `<username>:$7$<iterations>$<salt>$<hash>`. Finding that shape on
+    # disk - and not finding the password the scenario handed the role - is
+    # what says the account went through that program rather than through a
+    # plain write of whatever it was given.
+    - name: Assert the password file holds a hashed record for the provisioned account
+      ansible.builtin.assert:
+        that:
+          - (mosquitto_molecule_username ~ ':$7$') in (mosquitto_password_file.content | b64decode)
+          - mosquitto_molecule_password not in (mosquitto_password_file.content | b64decode)
+        fail_msg: "The password file does not hold a hashed record for {{ mosquitto_molecule_username }}"
+        success_msg: "The password file holds a hashed record for {{ mosquitto_molecule_username }}"
+
+    # Mosquitto reads the password file once, at startup, which is why the role
+    # tells the operator to restart the service after creating an account. That
+    # was confirmed against a running broker: the account is refused until the
+    # restart happens. Doing it here the way an operator would is what the
+    # verification then depends on.
+    - name: Restart Mosquitto so that the provisioned users take effect
+      ansible.builtin.systemd_service:
+        name: mosquitto.service
+        state: restarted

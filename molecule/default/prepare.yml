@@ -1,3 +1,4 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2026 spatterlight
 # SPDX-FileCopyrightText: 2026 Suguru Hirahara
 #
@@ -18,8 +19,56 @@
     - name: Ensure required packages are installed for Mosquitto Molecule tests preparation
       ansible.builtin.package:
         name:
+          # Required by the community.docker modules the role uses.
           - python3-requests
+          # `mosquitto_pub` and `mosquitto_sub`, which the verification speaks
+          # MQTT with. They come from the distribution rather than from the
+          # container image this role deploys, so the probes are an outside
+          # opinion of what the broker does rather than the broker agreeing
+          # with itself.
+          - mosquitto-clients
         state: present
+
+    # Negative control. The verification talks MQTT to 127.0.0.1 on the port
+    # this scenario configures; establishing that nothing is listening there
+    # before the role has run is what makes a later successful round-trip
+    # attributable to this role rather than to something that was already up.
+    #
+    # Asked at the TCP level rather than with an MQTT client, because a broker
+    # that answers and then declines to authenticate also makes a client exit
+    # non-zero - a control that cannot tell those two apart would be satisfied
+    # by the very broker it is supposed to rule out.
+    - name: Probe the MQTT port before Mosquitto is installed
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - |
+            import socket
+            import sys
+
+            connection = socket.socket()
+            connection.settimeout(5)
+
+            try:
+                connection.connect(("127.0.0.1", int(sys.argv[1])))
+            except OSError as error:
+                print("refused: %s" % error)
+            else:
+                print("accepted")
+            finally:
+                connection.close()
+          - "{{ mosquitto_molecule_tcp_port | string }}"
+      register: mosquitto_negative_control
+      changed_when: false
+
+    - name: Assert nothing was listening on the MQTT port before Mosquitto was installed
+      ansible.builtin.assert:
+        that: mosquitto_negative_control.stdout.startswith('refused')
+        fail_msg: >-
+          Something already accepts connections on port {{ mosquitto_molecule_tcp_port }}
+          ({{ mosquitto_negative_control.stdout }}), which would make the verification meaningless
+        success_msg: "Nothing listens on port {{ mosquitto_molecule_tcp_port }} yet"
 
     - name: Ensure Docker is installed for Mosquitto Molecule tests preparation
       ansible.builtin.include_role:

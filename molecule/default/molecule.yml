@@ -1,3 +1,4 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2026 spatterlight
 # SPDX-FileCopyrightText: 2026 Suguru Hirahara
 #
@@ -31,9 +32,34 @@ provisioner:
         # Helper variables
         mosquitto_debug_service_enabled: false
 
+        # Deliberately not 1883. The container image ships a configuration file
+        # of its own which listens on 1883 and allows anonymous access, and 1883
+        # is also what Mosquitto itself falls back to. A broker answering here,
+        # and nothing answering on 1883, is what tells the configuration file
+        # this role templated apart from either of those defaults.
+        mosquitto_molecule_tcp_port: 21883
+
+        # The account the scenario has the role provision, and then
+        # authenticates with. Kept free of dollar signs: values in this file go
+        # through environment-variable interpolation before Molecule reads them.
+        mosquitto_molecule_username: molecule
+        mosquitto_molecule_password: molecule-probe-password
+
+        # The message pushed through the broker during verification. The
+        # payload exists nowhere else, so receiving it back can only mean the
+        # broker routed it.
+        mosquitto_molecule_topic: molecule/probe
+        mosquitto_molecule_payload: molecule-probe-payload
+
         # Variables for Mosquitto
         mosquitto_uid: 1000
         mosquitto_gid: 1000
+
+        mosquitto_container_tcp_port: "{{ mosquitto_molecule_tcp_port }}"
+
+        mosquitto_users_custom:
+          - username: "{{ mosquitto_molecule_username }}"
+            password: "{{ mosquitto_molecule_password }}"
   env:
     # Workaround for https://github.com/ansible/molecule/issues/4391
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
@@ -47,8 +73,7 @@ scenario:
     - create
     - prepare
     - converge
-    # Disable idempotence test for now due to /mosquitto/config/password_file being changed every time
-    # - idempotence
+    - idempotence
     - side_effect
     - verify
     - cleanup
