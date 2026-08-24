@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2026 Suguru Hirahara
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
-listener 1883
+listener {{ mosquitto_container_tcp_port }}
 
 {% if mosquitto_allow_anonymous_access %}
 allow_anonymous true
