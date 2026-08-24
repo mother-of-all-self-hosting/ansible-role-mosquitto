@@ -37,6 +37,11 @@
     group: "{{ mosquitto_gid }}"
   register: mosquitto_config_file_result
 
+# The timestamps are preserved so that this reports a change only when the file
+# had to be created, or its ownership or mode had to be corrected. A plain touch
+# rewrites the timestamps on every run, which reports a change every time, and
+# through `mosquitto_restart_necessary` below that restarts the broker - and
+# drops every connected client with it - on every playbook run.
 - name: Ensure password file exists
   ansible.builtin.file:
     path: "{{ mosquitto_config_path }}/password_file"
@@ -44,6 +49,8 @@
     mode: "0640"
     owner: "{{ mosquitto_uid }}"
     group: "{{ mosquitto_gid }}"
+    modification_time: preserve
+    access_time: preserve
   register: mosquitto_password_file_result
 
 - name: Ensure Mosquitto container image is pulled via community.docker.docker_image_pull
