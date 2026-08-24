@@ -72,7 +72,11 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 ## Usage
 
-After running the command for installation, Mosquitto becomes available, and you can start to send and subscribe to MQTT topics. The server is configured to listen to the standard ports (`1883` for unencrypted MQTT and `8883` for encrypted MQTT, respectively).
+After running the command for installation, Mosquitto becomes available, and you can start to send and subscribe to MQTT topics.
+
+The broker listens on the standard MQTT port (`1883`), which `mosquitto_container_tcp_port` changes. It does not terminate TLS itself: when the instance is exposed through Traefik, the reverse proxy terminates TLS and forwards to the broker.
+
+Anonymous access is disabled by default, so a client has to authenticate as one of the users created below. Set `mosquitto_allow_anonymous_access` to `true` to let unauthenticated clients in, and read [the upstream documentation on authentication methods](https://mosquitto.org/documentation/authentication-methods/) before you do.
 
 ### Creating users
 

@@ -47,7 +47,14 @@ Currently there is one testing scenario available.
 
 ### `default`
 
-Tests a standard Mosquitto installation.
+Tests a standard Mosquitto installation, and then talks MQTT to it over its published port with `mosquitto_pub` and `mosquitto_sub` from the distribution:
+
+- nothing is allowed to answer on the port before the role runs, and the account the probes authenticate with is refused before the role provisions it
+- an unauthenticated connection and a wrong password both have to be refused, which is what tells a broker running the configuration this role wrote apart from one still running the file baked into the container image — that one listens on 1883 and allows anonymous access
+- the scenario moves the listener off 1883 through `mosquitto_container_tcp_port`, so the broker answering where it was told to and nowhere else ties the templated configuration to the running process
+- the version the broker reports about itself over `$SYS/broker/version` has to be the one `mosquitto_version` asks for
+- the account is provisioned through the role's own `mosquitto_passwd` tasks and has to land on disk as a hash rather than as the password it was given
+- a message is published and read back through a persistent session, which exercises the broker's routing and its session store
 
 ## Running
 
