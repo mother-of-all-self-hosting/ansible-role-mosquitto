@@ -1,6 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "Patch-level bumps of Mosquitto are automerged here. Mosquitto is a stateless broker: it keeps no schema to migrate and reads nothing at startup but the configuration and password files this role writes, so a patch bump has no way of changing the deployment behind the operator's back that a green pipeline would not have seen.",
+    "The Molecule scenario covers what such a bump could plausibly break. It proves nothing was answering MQTT on the port before the role ran, proves an unauthenticated connection and a wrong password are both refused, provisions a user through the role's own `mosquitto_passwd` tasks, runs an authenticated publish/subscribe round-trip through a persistent session, asserts the version the running broker reports about itself, and proves the listener port the role templated is the one the broker bound. A patch release that changed the configuration file format, the password file format, the `mosquitto_passwd` command line or the authentication path would fail that run.",
+    "The `extractVersion` rule below adds a structural guarantee on top: a version is only ever proposed when the `-alpine` tag it was extracted from exists, so an automerged bump cannot leave `mosquitto_container_image_tag` pointing at an image that was never published."
+  ],
   "extends": [
-    "github>mother-of-all-self-hosting/renovate-config#v1.0.0"
+    "github>mother-of-all-self-hosting/renovate-config#v1.0.0",
+    "github>mother-of-all-self-hosting/renovate-config//patch-automerge#v1.0.0"
+  ],
+  "packageRules": [
+    {
+      "description": "eclipse-mosquitto stopped publishing bare version tags with the 2.1 series: 2.0.22 exists both as `2.0.22` and as `2.0.22-openssl`, but 2.1.0 onwards exist only as `2.1.2-alpine`. `mosquitto_version` has to stay a bare three-part version, because `mosquitto_container_image_tag` appends `-alpine` to it and `2.1.2-alpine-alpine` is not an image. Under the `semver` versioning of the annotation the `-alpine` suffix parses as a prerelease identifier, so every 2.1.x tag is discarded as unstable and no update has been proposed since 2.0.22 - the move to 2.1.2 was made by hand. Extracting the version out of the `-alpine` tags gives Renovate bare versions to compare `mosquitto_version` against, and rules out both the `-openssl` flavour and the floating two-part `2.1-alpine` tag structurally.",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["library/eclipse-mosquitto"],
+      "extractVersion": "^(?<version>\\d+\\.\\d+\\.\\d+)-alpine$"
+    }
   ]
 }
