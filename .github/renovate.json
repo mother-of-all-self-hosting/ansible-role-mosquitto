@@ -6,8 +6,8 @@
     "The `extractVersion` rule below adds a structural guarantee on top: a version is only ever proposed when the `-alpine` tag it was extracted from exists, so an automerged bump cannot leave `mosquitto_container_image_tag` pointing at an image that was never published."
   ],
   "extends": [
-    "github>mother-of-all-self-hosting/renovate-config#v1.0.0",
-    "github>mother-of-all-self-hosting/renovate-config//patch-automerge#v1.0.0"
+    "github>mother-of-all-self-hosting/renovate-config#v1.1.0",
+    "github>mother-of-all-self-hosting/renovate-config//patch-automerge#v1.1.0"
   ],
   "packageRules": [
     {
