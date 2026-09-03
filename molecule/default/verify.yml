@@ -99,10 +99,8 @@
           mosquitto_version_probe.stdout.startswith(
             'mosquitto version ' ~ (mosquitto_defaults.mosquitto_version | regex_replace('^v', ''))
           )
-        fail_msg: >-
-          Mosquitto reports "{{ mosquitto_version_probe.stdout }}",
-          expected version {{ mosquitto_defaults.mosquitto_version }}
-        success_msg: 'Mosquitto reports "{{ mosquitto_version_probe.stdout }}"'
+        fail_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout | default('none') }}, expected {{ mosquitto_defaults.mosquitto_version }}"
+        success_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout }}"
 
     # The container image ships a configuration of its own which listens on
     # 1883 and sets `allow_anonymous true`. A refusal here therefore says two
