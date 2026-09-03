@@ -252,7 +252,7 @@
           expected "{{ mosquitto_molecule_payload }}"
         success_msg: "Mosquitto routed the message published on {{ mosquitto_molecule_topic }}"
 
-    - name: Show Mosquitto verification summary
+    - name: Show the Mosquitto verification summary
       ansible.builtin.debug:
         msg:
           - "Mosquitto systemd: {{ mosquitto_service.status.ActiveState }}"
