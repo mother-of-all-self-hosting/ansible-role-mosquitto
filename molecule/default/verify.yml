@@ -90,16 +90,9 @@
       retries: 12
       delay: 5
 
-    # The version is answered by the broker process about itself, so it reports
-    # what is actually running rather than the tag the role asked Docker for.
-    # Compared as a prefix, so that this keeps holding if Mosquitto ever starts
-    # appending a build suffix to what it reports.
     - name: Assert the running Mosquitto is the version this role installs
       ansible.builtin.assert:
-        that: >-
-          mosquitto_version_probe.stdout.startswith(
-            'mosquitto version ' ~ (mosquitto_defaults.mosquitto_version | regex_replace('^v', ''))
-          )
+        that: mosquitto_version_probe.stdout | regex_replace('mosquitto version ', '') == mosquitto_defaults.mosquitto_version
         fail_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout | default('none') }}, expected {{ mosquitto_defaults.mosquitto_version }}"
         success_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout }}"
 
