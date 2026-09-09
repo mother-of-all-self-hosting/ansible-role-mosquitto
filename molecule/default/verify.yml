@@ -42,6 +42,8 @@
     mosquitto_molecule_session_client_id: molecule-probe-session
 
   tasks:
+    - name: Verify that Mosquitto works
+      block:
     # The role is not included in this playbook, so its defaults are not in
     # scope. Reading defaults/main.yml directly ties the version assertion
     # below.
@@ -262,3 +264,19 @@
           - "Mosquitto wrong password: {{ mosquitto_wrong_password_probe.stderr | trim }}"
           - "Mosquitto on port 1883: {{ mosquitto_default_port_probe.stdout }}"
           - "Mosquitto round-trip payload: {{ mosquitto_receive_probe.stdout }}"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the Mosquitto systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=mosquitto.service
+          register: mosquitto_service_log
+          changed_when: false
+
+        - name: Show the Mosquitto systemd service log
+          ansible.builtin.debug:
+            var: mosquitto_service_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "Mosquitto verification failed. The systemd service log is printed above."
