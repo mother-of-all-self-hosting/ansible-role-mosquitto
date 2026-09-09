@@ -44,226 +44,226 @@
   tasks:
     - name: Verify that Mosquitto works
       block:
-    # The role is not included in this playbook, so its defaults are not in
-    # scope. Reading defaults/main.yml directly ties the version assertion
-    # below.
-    - name: Load the role defaults
-      ansible.builtin.include_vars:
-        file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
-        name: mosquitto_defaults
+        # The role is not included in this playbook, so its defaults are not in
+        # scope. Reading defaults/main.yml directly ties the version assertion
+        # below.
+        - name: Load the role defaults
+          ansible.builtin.include_vars:
+            file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+            name: mosquitto_defaults
 
-    - name: Wait for the Mosquitto systemd service to become active (up to 180s)
-      ansible.builtin.systemd_service:
-        name: mosquitto.service
-      register: mosquitto_service
-      until: mosquitto_service.status.ActiveState == 'active'
-      retries: 36
-      delay: 5
-      # So that giving up is reported by the assertion below rather than as a
-      # wall of systemd unit properties.
-      failed_when: false
+        - name: Wait for the Mosquitto systemd service to become active (up to 180s)
+          ansible.builtin.systemd_service:
+            name: mosquitto.service
+          register: mosquitto_service
+          until: mosquitto_service.status.ActiveState == 'active'
+          retries: 36
+          delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
 
-    # `Restart=always` in the systemd unit means that even a container which crashes
-    # and gets restarted reads as active here, so this is a precondition rather than
-    # a result.
-    - name: Assert the Mosquitto systemd service is active
-      ansible.builtin.assert:
-        that: mosquitto_service.status.ActiveState == 'active'
-        fail_msg: "mosquitto.service is not active ({{ mosquitto_service.status.ActiveState }})"
-        success_msg: "mosquitto.service is active"
+        # `Restart=always` in the systemd unit means that even a container which crashes
+        # and gets restarted reads as active here, so this is a precondition rather than
+        # a result.
+        - name: Assert the Mosquitto systemd service is active
+          ansible.builtin.assert:
+            that: mosquitto_service.status.ActiveState == 'active'
+            fail_msg: "mosquitto.service is not active ({{ mosquitto_service.status.ActiveState }})"
+            success_msg: "mosquitto.service is active"
 
-    - name: Retrieve the Mosquitto systemd service log for debugging
-      when: mosquitto_debug_service_enabled | bool
-      ansible.builtin.command:
-        cmd: journalctl --no-pager --output=cat --unit=mosquitto.service
-      changed_when: false
+        - name: Retrieve the Mosquitto systemd service log for debugging
+          when: mosquitto_debug_service_enabled | bool
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=mosquitto.service
+          changed_when: false
 
-    # systemd reports `active` as soon as `docker start --attach` is running,
-    # which says nothing about the broker inside having read its configuration
-    # and bound a listener. This is the first probe that does, and it is also
-    # the first one that says the account provisioned as a side effect is
-    # accepted.
-    - name: Wait for Mosquitto to accept an authenticated MQTT connection (up to 60s)
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['mosquitto_sub']
-            + mosquitto_molecule_target
-            + mosquitto_molecule_credentials
-            + ['-t', mosquitto_molecule_version_topic, '-C', '1', '-W', '5']
-          }}
-      register: mosquitto_version_probe
-      changed_when: false
-      until: mosquitto_version_probe.rc == 0
-      retries: 12
-      delay: 5
+        # systemd reports `active` as soon as `docker start --attach` is running,
+        # which says nothing about the broker inside having read its configuration
+        # and bound a listener. This is the first probe that does, and it is also
+        # the first one that says the account provisioned as a side effect is
+        # accepted.
+        - name: Wait for Mosquitto to accept an authenticated MQTT connection (up to 60s)
+          ansible.builtin.command:
+            argv: >-
+              {{
+                ['mosquitto_sub']
+                + mosquitto_molecule_target
+                + mosquitto_molecule_credentials
+                + ['-t', mosquitto_molecule_version_topic, '-C', '1', '-W', '5']
+              }}
+          register: mosquitto_version_probe
+          changed_when: false
+          until: mosquitto_version_probe.rc == 0
+          retries: 12
+          delay: 5
 
-    - name: Assert the running Mosquitto is the version this role installs
-      ansible.builtin.assert:
-        that: mosquitto_version_probe.stdout | regex_replace('mosquitto version ', '') == mosquitto_defaults.mosquitto_version
-        fail_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout | default('none') }}, expected {{ mosquitto_defaults.mosquitto_version }}"
-        success_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout }}"
+        - name: Assert the running Mosquitto is the version this role installs
+          ansible.builtin.assert:
+            that: mosquitto_version_probe.stdout | regex_replace('mosquitto version ', '') == mosquitto_defaults.mosquitto_version
+            fail_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout | default('none') }}, expected {{ mosquitto_defaults.mosquitto_version }}"
+            success_msg: "Mosquitto reports {{ mosquitto_version_probe.stdout }}"
 
-    # The container image ships a configuration of its own which listens on
-    # 1883 and sets `allow_anonymous true`. A refusal here therefore says two
-    # things at once: the configuration file this role wrote is the one in
-    # force, and the authentication it asks for is genuinely enforced rather
-    # than merely written down.
-    - name: Connect to Mosquitto without credentials
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['mosquitto_sub']
-            + mosquitto_molecule_target
-            + ['-t', mosquitto_molecule_version_topic, '-C', '1', '-W', '5']
-          }}
-      register: mosquitto_anonymous_probe
-      changed_when: false
-      failed_when: false
+        # The container image ships a configuration of its own which listens on
+        # 1883 and sets `allow_anonymous true`. A refusal here therefore says two
+        # things at once: the configuration file this role wrote is the one in
+        # force, and the authentication it asks for is genuinely enforced rather
+        # than merely written down.
+        - name: Connect to Mosquitto without credentials
+          ansible.builtin.command:
+            argv: >-
+              {{
+                ['mosquitto_sub']
+                + mosquitto_molecule_target
+                + ['-t', mosquitto_molecule_version_topic, '-C', '1', '-W', '5']
+              }}
+          register: mosquitto_anonymous_probe
+          changed_when: false
+          failed_when: false
 
-    - name: Assert Mosquitto refuses an unauthenticated connection
-      ansible.builtin.assert:
-        that:
-          - mosquitto_anonymous_probe.rc != 0
-          - "'not authorised' in mosquitto_anonymous_probe.stderr"
-        fail_msg: >-
-          Mosquitto accepted an unauthenticated connection
-          (rc={{ mosquitto_anonymous_probe.rc }}, stdout={{ mosquitto_anonymous_probe.stdout }})
-        success_msg: "Mosquitto refuses an unauthenticated connection"
+        - name: Assert Mosquitto refuses an unauthenticated connection
+          ansible.builtin.assert:
+            that:
+              - mosquitto_anonymous_probe.rc != 0
+              - "'not authorised' in mosquitto_anonymous_probe.stderr"
+            fail_msg: >-
+              Mosquitto accepted an unauthenticated connection
+              (rc={{ mosquitto_anonymous_probe.rc }}, stdout={{ mosquitto_anonymous_probe.stdout }})
+            success_msg: "Mosquitto refuses an unauthenticated connection"
 
-    # Tells a broker that consults the password file apart from one that waves
-    # any set of credentials through.
-    - name: Connect to Mosquitto with a wrong password
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['mosquitto_sub']
-            + mosquitto_molecule_target
-            + ['-u', mosquitto_molecule_username, '-P', mosquitto_molecule_password ~ '-wrong']
-            + ['-t', mosquitto_molecule_version_topic, '-C', '1', '-W', '5']
-          }}
-      register: mosquitto_wrong_password_probe
-      changed_when: false
-      failed_when: false
+        # Tells a broker that consults the password file apart from one that waves
+        # any set of credentials through.
+        - name: Connect to Mosquitto with a wrong password
+          ansible.builtin.command:
+            argv: >-
+              {{
+                ['mosquitto_sub']
+                + mosquitto_molecule_target
+                + ['-u', mosquitto_molecule_username, '-P', mosquitto_molecule_password ~ '-wrong']
+                + ['-t', mosquitto_molecule_version_topic, '-C', '1', '-W', '5']
+              }}
+          register: mosquitto_wrong_password_probe
+          changed_when: false
+          failed_when: false
 
-    - name: Assert Mosquitto refuses a wrong password
-      ansible.builtin.assert:
-        that:
-          - mosquitto_wrong_password_probe.rc != 0
-          - "'not authorised' in mosquitto_wrong_password_probe.stderr"
-        fail_msg: >-
-          Mosquitto accepted a wrong password for {{ mosquitto_molecule_username }}
-          (rc={{ mosquitto_wrong_password_probe.rc }}, stdout={{ mosquitto_wrong_password_probe.stdout }})
-        success_msg: "Mosquitto refuses a wrong password"
+        - name: Assert Mosquitto refuses a wrong password
+          ansible.builtin.assert:
+            that:
+              - mosquitto_wrong_password_probe.rc != 0
+              - "'not authorised' in mosquitto_wrong_password_probe.stderr"
+            fail_msg: >-
+              Mosquitto accepted a wrong password for {{ mosquitto_molecule_username }}
+              (rc={{ mosquitto_wrong_password_probe.rc }}, stdout={{ mosquitto_wrong_password_probe.stdout }})
+            success_msg: "Mosquitto refuses a wrong password"
 
-    # This scenario moved the listener off 1883 through
-    # `mosquitto_container_tcp_port`. Both Mosquitto and the configuration file
-    # baked into the container image default to 1883, so the broker answering
-    # on the configured port while 1883 stays closed is what proves the
-    # templated `listener` line reached the running broker.
-    #
-    # Asked at the TCP level, for the same reason the negative control in
-    # prepare.yml is: an MQTT client exits non-zero both when nothing is
-    # listening and when a broker answered and declined to authenticate, and
-    # only the first of those means the listener moved.
-    - name: Connect to the default MQTT port
-      ansible.builtin.command:
-        argv:
-          - python3
-          - -c
-          - |
-            import socket
+        # This scenario moved the listener off 1883 through
+        # `mosquitto_container_tcp_port`. Both Mosquitto and the configuration file
+        # baked into the container image default to 1883, so the broker answering
+        # on the configured port while 1883 stays closed is what proves the
+        # templated `listener` line reached the running broker.
+        #
+        # Asked at the TCP level, for the same reason the negative control in
+        # prepare.yml is: an MQTT client exits non-zero both when nothing is
+        # listening and when a broker answered and declined to authenticate, and
+        # only the first of those means the listener moved.
+        - name: Connect to the default MQTT port
+          ansible.builtin.command:
+            argv:
+              - python3
+              - -c
+              - |
+                import socket
 
-            connection = socket.socket()
-            connection.settimeout(5)
+                connection = socket.socket()
+                connection.settimeout(5)
 
-            try:
-                connection.connect(("127.0.0.1", 1883))
-            except OSError as error:
-                print("refused: %s" % error)
-            else:
-                print("accepted")
-            finally:
-                connection.close()
-      register: mosquitto_default_port_probe
-      changed_when: false
+                try:
+                    connection.connect(("127.0.0.1", 1883))
+                except OSError as error:
+                    print("refused: %s" % error)
+                else:
+                    print("accepted")
+                finally:
+                    connection.close()
+          register: mosquitto_default_port_probe
+          changed_when: false
 
-    - name: Assert Mosquitto is not listening on the default MQTT port
-      ansible.builtin.assert:
-        that: mosquitto_default_port_probe.stdout.startswith('refused')
-        fail_msg: >-
-          Something accepts connections on port 1883, which the configured listener port
-          {{ mosquitto_molecule_tcp_port }} was supposed to have replaced
-          ({{ mosquitto_default_port_probe.stdout }})
-        success_msg: "Mosquitto listens on {{ mosquitto_molecule_tcp_port }} only, not on 1883"
+        - name: Assert Mosquitto is not listening on the default MQTT port
+          ansible.builtin.assert:
+            that: mosquitto_default_port_probe.stdout.startswith('refused')
+            fail_msg: >-
+              Something accepts connections on port 1883, which the configured listener port
+              {{ mosquitto_molecule_tcp_port }} was supposed to have replaced
+              ({{ mosquitto_default_port_probe.stdout }})
+            success_msg: "Mosquitto listens on {{ mosquitto_molecule_tcp_port }} only, not on 1883"
 
-    # A publish/subscribe round-trip is what an MQTT broker exists to do.
-    #
-    # It goes through a persistent session rather than through a subscriber
-    # left running in the background: the first connection registers the
-    # subscription and drops, the publish is queued by the broker against that
-    # session, and the second connection drains it. That removes the race a
-    # backgrounded subscriber would have, and exercises the broker's session
-    # store alongside its routing.
-    - name: Register a persistent MQTT subscription
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['mosquitto_sub']
-            + mosquitto_molecule_target
-            + mosquitto_molecule_credentials
-            + ['-i', mosquitto_molecule_session_client_id, '-c', '-q', '1']
-            + ['-t', mosquitto_molecule_topic, '-C', '1', '-W', '5']
-          }}
-      register: mosquitto_subscribe_probe
-      changed_when: false
-      # Nothing has been published yet, so this connection ends on its own
-      # timeout. The subscription it leaves behind is the point of it, and a
-      # connection that never got that far is what has to be caught.
-      failed_when: "'Connection error' in mosquitto_subscribe_probe.stderr"
+        # A publish/subscribe round-trip is what an MQTT broker exists to do.
+        #
+        # It goes through a persistent session rather than through a subscriber
+        # left running in the background: the first connection registers the
+        # subscription and drops, the publish is queued by the broker against that
+        # session, and the second connection drains it. That removes the race a
+        # backgrounded subscriber would have, and exercises the broker's session
+        # store alongside its routing.
+        - name: Register a persistent MQTT subscription
+          ansible.builtin.command:
+            argv: >-
+              {{
+                ['mosquitto_sub']
+                + mosquitto_molecule_target
+                + mosquitto_molecule_credentials
+                + ['-i', mosquitto_molecule_session_client_id, '-c', '-q', '1']
+                + ['-t', mosquitto_molecule_topic, '-C', '1', '-W', '5']
+              }}
+          register: mosquitto_subscribe_probe
+          changed_when: false
+          # Nothing has been published yet, so this connection ends on its own
+          # timeout. The subscription it leaves behind is the point of it, and a
+          # connection that never got that far is what has to be caught.
+          failed_when: "'Connection error' in mosquitto_subscribe_probe.stderr"
 
-    - name: Publish a message to the subscribed topic
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['mosquitto_pub']
-            + mosquitto_molecule_target
-            + mosquitto_molecule_credentials
-            + ['-q', '1', '-t', mosquitto_molecule_topic, '-m', mosquitto_molecule_payload]
-          }}
-      changed_when: false
+        - name: Publish a message to the subscribed topic
+          ansible.builtin.command:
+            argv: >-
+              {{
+                ['mosquitto_pub']
+                + mosquitto_molecule_target
+                + mosquitto_molecule_credentials
+                + ['-q', '1', '-t', mosquitto_molecule_topic, '-m', mosquitto_molecule_payload]
+              }}
+          changed_when: false
 
-    - name: Read the queued message back out of Mosquitto
-      ansible.builtin.command:
-        argv: >-
-          {{
-            ['mosquitto_sub']
-            + mosquitto_molecule_target
-            + mosquitto_molecule_credentials
-            + ['-i', mosquitto_molecule_session_client_id, '-c', '-q', '1']
-            + ['-t', mosquitto_molecule_topic, '-C', '1', '-W', '15']
-          }}
-      register: mosquitto_receive_probe
-      changed_when: false
+        - name: Read the queued message back out of Mosquitto
+          ansible.builtin.command:
+            argv: >-
+              {{
+                ['mosquitto_sub']
+                + mosquitto_molecule_target
+                + mosquitto_molecule_credentials
+                + ['-i', mosquitto_molecule_session_client_id, '-c', '-q', '1']
+                + ['-t', mosquitto_molecule_topic, '-C', '1', '-W', '15']
+              }}
+          register: mosquitto_receive_probe
+          changed_when: false
 
-    - name: Assert the published message came back through Mosquitto
-      ansible.builtin.assert:
-        that: mosquitto_receive_probe.stdout == mosquitto_molecule_payload
-        fail_msg: >-
-          Mosquitto returned "{{ mosquitto_receive_probe.stdout }}" on {{ mosquitto_molecule_topic }},
-          expected "{{ mosquitto_molecule_payload }}"
-        success_msg: "Mosquitto routed the message published on {{ mosquitto_molecule_topic }}"
+        - name: Assert the published message came back through Mosquitto
+          ansible.builtin.assert:
+            that: mosquitto_receive_probe.stdout == mosquitto_molecule_payload
+            fail_msg: >-
+              Mosquitto returned "{{ mosquitto_receive_probe.stdout }}" on {{ mosquitto_molecule_topic }},
+              expected "{{ mosquitto_molecule_payload }}"
+            success_msg: "Mosquitto routed the message published on {{ mosquitto_molecule_topic }}"
 
-    - name: Show the Mosquitto verification summary
-      ansible.builtin.debug:
-        msg:
-          - "Mosquitto systemd: {{ mosquitto_service.status.ActiveState }}"
-          - "Mosquitto version: {{ mosquitto_version_probe.stdout }}"
-          - "Mosquitto listener port: {{ mosquitto_molecule_tcp_port }}"
-          - "Mosquitto anonymous connection: {{ mosquitto_anonymous_probe.stderr | trim }}"
-          - "Mosquitto wrong password: {{ mosquitto_wrong_password_probe.stderr | trim }}"
-          - "Mosquitto on port 1883: {{ mosquitto_default_port_probe.stdout }}"
-          - "Mosquitto round-trip payload: {{ mosquitto_receive_probe.stdout }}"
+        - name: Show the Mosquitto verification summary
+          ansible.builtin.debug:
+            msg:
+              - "Mosquitto systemd: {{ mosquitto_service.status.ActiveState }}"
+              - "Mosquitto version: {{ mosquitto_version_probe.stdout }}"
+              - "Mosquitto listener port: {{ mosquitto_molecule_tcp_port }}"
+              - "Mosquitto anonymous connection: {{ mosquitto_anonymous_probe.stderr | trim }}"
+              - "Mosquitto wrong password: {{ mosquitto_wrong_password_probe.stderr | trim }}"
+              - "Mosquitto on port 1883: {{ mosquitto_default_port_probe.stdout }}"
+              - "Mosquitto round-trip payload: {{ mosquitto_receive_probe.stdout }}"
 
       rescue:
         # Whatever went wrong, the reason is almost always in the systemd service log.
