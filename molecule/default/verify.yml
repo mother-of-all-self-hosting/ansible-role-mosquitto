@@ -41,6 +41,9 @@
     # same string on both connections.
     mosquitto_molecule_session_client_id: molecule-probe-session
 
+    mosquitto_verify_units:
+      - mosquitto.service
+
   tasks:
     - name: Verify that Mosquitto works
       block:
@@ -52,13 +55,14 @@
             file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
             name: mosquitto_defaults
 
-        - name: Wait for the Mosquitto systemd service to become active (up to 180s)
+        - name: Wait for the Mosquitto systemd services to become active (up to 180s each)
           ansible.builtin.systemd_service:
-            name: mosquitto.service
-          register: mosquitto_service
-          until: mosquitto_service.status.ActiveState == 'active'
+            name: "{{ item }}"
+          register: mosquitto_services
+          until: mosquitto_services.status.ActiveState == 'active'
           retries: 36
           delay: 5
+          loop: "{{ mosquitto_verify_units }}"
           # So that giving up is reported by the assertion below rather than as a
           # wall of systemd unit properties.
           failed_when: false
@@ -66,17 +70,20 @@
         # `Restart=always` in the systemd unit means that even a container which crashes
         # and gets restarted reads as active here, so this is a precondition rather than
         # a result.
-        - name: Assert the Mosquitto systemd service is active
+        - name: Assert the Mosquitto systemd services are active
           ansible.builtin.assert:
-            that: mosquitto_service.status.ActiveState == 'active'
-            fail_msg: "mosquitto.service is not active ({{ mosquitto_service.status.ActiveState }})"
-            success_msg: "mosquitto.service is active"
+            that: mosquitto_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+            fail_msg: >-
+              Not every service is active:
+              {{ dict(mosquitto_verify_units | zip(mosquitto_services.results | map(attribute='status.ActiveState'))) }}
+            success_msg: "Every systemd service is active"
 
-        - name: Retrieve the Mosquitto systemd service log for debugging
+        - name: Retrieve the Mosquitto systemd services log for debugging
           when: mosquitto_debug_service_enabled | bool
           ansible.builtin.command:
-            cmd: journalctl --no-pager --output=cat --unit=mosquitto.service
+            cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
           changed_when: false
+          loop: "{{ mosquitto_verify_units }}"
 
         # systemd reports `active` as soon as `docker start --attach` is running,
         # which says nothing about the broker inside having read its configuration
@@ -257,7 +264,7 @@
         - name: Show the Mosquitto verification summary
           ansible.builtin.debug:
             msg:
-              - "Mosquitto systemd: {{ mosquitto_service.status.ActiveState }}"
+              - "Mosquitto systemd: {% for unit, state in mosquitto_verify_units | zip(mosquitto_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
               - "Mosquitto version: {{ mosquitto_version_probe.stdout }}"
               - "Mosquitto listener port: {{ mosquitto_molecule_tcp_port }}"
               - "Mosquitto anonymous connection: {{ mosquitto_anonymous_probe.stderr | trim }}"
