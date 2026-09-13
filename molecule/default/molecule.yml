@@ -31,6 +31,7 @@ provisioner:
       all:
         # Helper variables
         mosquitto_debug_service_enabled: false
+        mosquitto_restarts_check_enabled: true
 
         # Deliberately not 1883. The container image ships a configuration file
         # of its own which listens on 1883 and allows anonymous access, and 1883
