@@ -43,7 +43,10 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% for arg in mosquitto_container_extra_arguments %}
       {{ arg }} \
       {% endfor %}
-      {{ mosquitto_container_image }}
+      {{ mosquitto_container_image }} \
+      {% for arg in mosquitto_process_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
 
 {% for network in mosquitto_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ mosquitto_identifier }}

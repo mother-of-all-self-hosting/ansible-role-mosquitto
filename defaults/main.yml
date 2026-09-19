@@ -101,6 +101,12 @@ mosquitto_container_extra_arguments: "{{ mosquitto_container_extra_arguments_aut
 mosquitto_container_extra_arguments_auto: []
 mosquitto_container_extra_arguments_custom: []
 
+# A list of extra arguments to pass to the process inside the container
+# Example: ['--SOME_ARGUMENT']
+mosquitto_process_extra_arguments: "{{ mosquitto_process_extra_arguments_auto + mosquitto_process_extra_arguments_custom }}"
+mosquitto_process_extra_arguments_auto: []
+mosquitto_process_extra_arguments_custom: []
+
 # List of systemd services that the Mosquitto systemd service depends on
 mosquitto_systemd_required_services_list: "{{ mosquitto_systemd_required_services_list_default + mosquitto_systemd_required_services_list_auto + mosquitto_systemd_required_services_list_custom }}"
 mosquitto_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
